@@ -1,0 +1,49 @@
+jwt:
+  secret: Wilson93905473*
+
+server:
+  error:
+    path: /user/error
+    whitelabel:
+      enabled: false
+  address: 192.168.56.1
+
+spring:
+  #  autoconfigure:
+  #    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+  datasource:
+    url: jdbc:mysql://192.168.56.1:3308/springmarket?serverTimezone=UTC
+    username: spring
+    password: spring1234
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        globally_quoted_indentifiers: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  sql:
+    init:
+      mode: never
+      continue-on-error: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: temgouaromeo258@gmail.com
+    password: tjss ehul xmjt imxj
+    properties:
+      mail:
+        smtp:
+          writetimeout: 5000
+          connectiontimeout: 5000
+          timeout: 5000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+

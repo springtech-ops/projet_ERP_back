@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    active: @spring.profiles.active@
+
+application:
+  title: Spring-Tech
+  version: 1.0
