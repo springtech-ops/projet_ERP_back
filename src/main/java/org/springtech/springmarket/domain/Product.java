@@ -40,22 +40,23 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "agency_id", nullable = false)
+    @JsonIgnore
     private Agency agency;
 
     @ManyToOne
     @JoinColumn(name = "fournisseur_id", nullable = false)
+    @JsonIgnore
     private Fournisseur fournisseur;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnore
     private Category category;
 
     @OneToMany(mappedBy = "product", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<LigneCommande> ligneCommandes;
 
     @OneToMany(mappedBy = "product", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<Stock> stocks;
 
 }

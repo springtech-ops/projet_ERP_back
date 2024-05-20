@@ -37,7 +37,6 @@ public class Agency {
     private Date createdAt;
 
     @OneToMany(mappedBy = "agency", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<Product> products;
 }
 

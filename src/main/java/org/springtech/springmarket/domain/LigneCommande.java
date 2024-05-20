@@ -35,9 +35,11 @@ public class LigneCommande {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
 
     @ManyToOne
     @JoinColumn(name = "invoice_id", nullable = false)
+    @JsonIgnore
     private Invoice invoice;
 }

@@ -8,13 +8,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springtech.springmarket.domain.Customer;
+import org.springtech.springmarket.domain.Stats;
 import org.springtech.springmarket.repository.CustomerRepository;
 import org.springtech.springmarket.repository.InvoiceRepository;
+import org.springtech.springmarket.rowMapper.StatsRowMapper;
 import org.springtech.springmarket.service.CustomerService;
 
 import java.util.Date;
+import java.util.Map;
 
 import static org.springframework.data.domain.PageRequest.of;
+import static org.springtech.springmarket.query.CustomerQuery.STATS_QUERY;
 
 @Service
 @Transactional
@@ -69,6 +73,11 @@ public class CustomerServiceImpl implements CustomerService {
         }
         // Supprime le fournisseur
         customerRepository.deleteById(id);
+    }
+
+    @Override
+    public Stats getStats() {
+        return jdbc.queryForObject(STATS_QUERY, Map.of(), new StatsRowMapper());
     }
 
 }

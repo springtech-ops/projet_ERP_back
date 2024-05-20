@@ -41,6 +41,5 @@ public class Customer {
     private Date createdAt;
 
     @OneToMany(mappedBy = "customer", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<Invoice> invoices;
 }

@@ -34,6 +34,5 @@ public class Category {
     private String description;
 
     @OneToMany(mappedBy = "category", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<Product> products;
 }

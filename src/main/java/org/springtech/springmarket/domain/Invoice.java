@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -29,16 +31,16 @@ public class Invoice {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
     private String invoiceNumber;
-    private Date date;
+    private LocalDateTime createdAt;
     private String status;
     private double total;
     private String agencyCodeIv;
 
     @OneToMany(mappedBy = "invoice", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<LigneCommande> ligneCommandes;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
     private Customer customer;
 }

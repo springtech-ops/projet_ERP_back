@@ -13,6 +13,8 @@ import org.springtech.springmarket.repository.CustomerRepository;
 import org.springtech.springmarket.repository.InvoiceRepository;
 import org.springtech.springmarket.service.InvoiceService;
 
+import java.time.LocalDateTime;
+
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -29,6 +31,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public Invoice createInvoice(Invoice invoice) {
         invoice.setInvoiceNumber(randomAlphanumeric(8).toUpperCase());
+        invoice.setCreatedAt(LocalDateTime.now());
         return invoiceRepository.save(invoice);
     }
 

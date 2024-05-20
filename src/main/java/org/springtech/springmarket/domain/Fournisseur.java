@@ -36,6 +36,5 @@ public class Fournisseur {
     private String city;
 
     @OneToMany(mappedBy = "fournisseur", fetch = EAGER, cascade = ALL)
-    @JsonIgnore
     private Collection<Product> products;
 }

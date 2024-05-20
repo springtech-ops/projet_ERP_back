@@ -3,6 +3,7 @@ package org.springtech.springmarket.service;
 import org.springframework.data.domain.Page;
 import org.springtech.springmarket.domain.Customer;
 import org.springtech.springmarket.domain.Invoice;
+import org.springtech.springmarket.domain.Stats;
 
 public interface CustomerService {
     // Customer functions
@@ -13,4 +14,6 @@ public interface CustomerService {
     Customer getCustomer(Long id);
     Page<Customer> searchCustomers(String name, int page, int size);
     void deleteCustomer(Long id);
+
+    Stats getStats();
 }
