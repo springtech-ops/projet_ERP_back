@@ -15,5 +15,5 @@ public interface CustomerService {
     Page<Customer> searchCustomers(String name, int page, int size);
     void deleteCustomer(Long id);
 
-    Stats getStats();
+    Stats getStats(String date, String monthYear, String year, boolean week);
 }

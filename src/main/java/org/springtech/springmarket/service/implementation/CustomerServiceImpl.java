@@ -5,20 +5,23 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springtech.springmarket.domain.Customer;
 import org.springtech.springmarket.domain.Stats;
+import org.springtech.springmarket.query.CustomerQuery;
 import org.springtech.springmarket.repository.CustomerRepository;
 import org.springtech.springmarket.repository.InvoiceRepository;
 import org.springtech.springmarket.rowMapper.StatsRowMapper;
 import org.springtech.springmarket.service.CustomerService;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.data.domain.PageRequest.of;
-import static org.springtech.springmarket.query.CustomerQuery.STATS_QUERY;
+import static org.springtech.springmarket.query.CustomerQuery.*;
 
 @Service
 @Transactional
@@ -28,6 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
     private final NamedParameterJdbcTemplate jdbc;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Customer createCustomer(Customer customer) {
@@ -75,9 +79,36 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.deleteById(id);
     }
 
-    @Override
-    public Stats getStats() {
-        return jdbc.queryForObject(STATS_QUERY, Map.of(), new StatsRowMapper());
+//    @Override
+//    public Stats getStats() {
+//        return jdbc.queryForObject(STATS_QUERY, Map.of(), new StatsRowMapper());
+//    }
+
+    public Stats getStats(String date, String monthYear, String year, boolean week) {
+        String query;
+        Object[] params;
+
+        if (date != null) {
+            query = CustomerQuery.STATS_QUERY_DATE;
+            params = new Object[]{"%" + date + "%", "%" + date + "%", "%" + date + "%", "%" + date + "%", "%" + date + "%", "%" + date + "%"};
+        } else if (monthYear != null) {
+            query = CustomerQuery.STATS_QUERY_MONTH_YEAR;
+            params = new Object[]{monthYear + "%", monthYear + "%", monthYear + "%", monthYear + "%", monthYear + "%", monthYear + "%"};
+        } else if (year != null) {
+            query = CustomerQuery.STATS_QUERY_YEAR;
+            params = new Object[]{year + "%", year + "%", year + "%", year + "%", year + "%", year + "%"};
+        } else if (week) {
+            query = CustomerQuery.STATS_QUERY_LAST_DAYS;
+            params = new Object[]{};
+        } else {
+            query = CustomerQuery.STATS_QUERY;
+            params = new Object[]{};
+        }
+
+        // Passez la requête lors de la création de l'objet StatsRowMapper
+        return jdbcTemplate.queryForObject(query, params, new StatsRowMapper(query));
     }
+
+
 
 }

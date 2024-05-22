@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springtech.springmarket.domain.Customer;
 import org.springtech.springmarket.domain.HttpResponse;
+import org.springtech.springmarket.domain.Stats;
 import org.springtech.springmarket.dto.UserDTO;
 import org.springtech.springmarket.service.CustomerService;
 import org.springtech.springmarket.service.UserService;
@@ -39,9 +40,31 @@ public class CustomerResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "page", customerService.getCustomers(page.orElse(0), size.orElse(10)),
-                                "stats", customerService.getStats()))
+                                "page", customerService.getCustomers(page.orElse(0), size.orElse(10))
+                                ))
                         .message("Customers retrieved")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<HttpResponse> getStats(@RequestParam Optional<String> date,
+                                                 @RequestParam Optional<String> monthYear,
+                                                 @RequestParam Optional<String> year,
+                                                 @RequestParam Optional<Boolean> week) {
+        Stats stats = customerService.getStats(
+                date.orElse(null),
+                monthYear.orElse(null),
+                year.orElse(null),
+                week.orElse(false)
+        );
+
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("stats", stats))
+                        .message("Stats retrieved")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
@@ -137,5 +160,7 @@ public class CustomerResource {
                             .build());
         }
     }
+
+
 
 }
