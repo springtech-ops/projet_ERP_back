@@ -35,6 +35,7 @@ public class Agency {
     private String code;
     private String ville;
     private Date createdAt;
+    private String status;
 
     @OneToMany(mappedBy = "agency", fetch = EAGER, cascade = ALL)
     private Collection<Product> products;

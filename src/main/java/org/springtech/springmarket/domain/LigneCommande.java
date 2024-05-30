@@ -25,12 +25,13 @@ public class LigneCommande {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+    private String name;
     private int quantityLC;
     private double prixAchat;
     private double prixAchatTotal;
     private double prixVente;
     private double prixVenteTotal;
-    private String AgencyCodeLC;
+    private String agencyCodeLC;
     private Date createdAt;
 
     @ManyToOne

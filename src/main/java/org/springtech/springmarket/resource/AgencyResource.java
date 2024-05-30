@@ -66,7 +66,7 @@ public class AgencyResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "Agency", agencyService.getAgency(id)))
+                                "agency", agencyService.getAgency(id)))
                         .message("Agency retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -86,7 +86,7 @@ public class AgencyResource {
                         .build());
     }
 
-    @PatchMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<HttpResponse> updateAgency(@AuthenticationPrincipal UserDTO user, @RequestBody Agency agency) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
