@@ -20,6 +20,7 @@ import org.springtech.springmarket.event.NewUserEvent;
 import org.springtech.springmarket.exception.ApiException;
 import org.springtech.springmarket.form.*;
 import org.springtech.springmarket.provider.TokenProvider;
+import org.springtech.springmarket.service.AgencyService;
 import org.springtech.springmarket.service.EventService;
 import org.springtech.springmarket.service.RoleService;
 import org.springtech.springmarket.service.UserService;
@@ -30,6 +31,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +57,7 @@ public class UserResource {
     private final UserService userService;
     private final RoleService roleService;
     private final EventService eventService;
+    private final AgencyService agencyService;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final HttpServletRequest request;
@@ -210,7 +213,7 @@ public class UserResource {
     public ResponseEntity<HttpResponse> updateAccountSettings(Authentication authentication, @RequestBody @Valid SettingsForm form) {
         UserDTO userDTO = getAuthenticatedUser(authentication);
         userService.updateAccountSettings(userDTO.getId(), form.getEnabled(), form.getNotLocked());
-        publisher.publishEvent(new NewUserEvent(userDTO.getEmail(), ACCOUNT_SETTINGS_UPDATE));
+        publisher.publishEvent(new NewUserEvent(userDTO.getEmail(), ACCOUNT_SETTING_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .data(of("user", userService.getUserById(userDTO.getId()), "events", eventService.getEventsByUserId(userDTO.getId()), "roles", roleService.getRoles()))
@@ -363,8 +366,24 @@ public class UserResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "Users", userService.getUsers(page.orElse(0), size.orElse(10))))
+                                "usersList", userService.getAllUsers(page.orElse(0), size.orElse(10))))
                         .message("Users retrieved")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<HttpResponse> getUsersByFirstName(@AuthenticationPrincipal UserDTO user,
+                                                            @RequestParam Optional<String> firstName,
+                                                            @RequestParam Optional<Integer> page,
+                                                            @RequestParam Optional<Integer> size) {
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", userService.getUserByEmail(user.getEmail()),
+                                "page", userService.getUsersByFirstName(firstName.orElse(""), page.orElse(0), size.orElse(10))))
+                        .message("Users retrieved by first name")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
@@ -372,39 +391,49 @@ public class UserResource {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<HttpResponse> getUserById(@AuthenticationPrincipal UserDTO user,
-                                                 @PathVariable Long id) {
+                                                    @PathVariable Long id) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "User By ID", userService.getUserById(id)))
+                                "userById", userService.getUserById(id),
+                                "events", eventService.getEventsByUserId(user.getId()),
+                                "roles", roleService.getRoles(),
+                                "agencies", agencyService.getAgencies()))
                         .message("User By Specified ID retrieved")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
 
-//        try {
-//            Collection<User> userList = userService.getUsers(page, size);
-//
-//            return ResponseEntity.ok().body(
-//                    HttpResponse.builder()
-//                            .timeStamp(now().toString())
-//                            .data(of("users", userList))
-//                            .message("List of users retrieved successfully")
-//                            .status(HttpStatus.OK)
-//                            .statusCode(HttpStatus.OK.value())
-//                            .build());
-//        } catch (ApiException e) {
-//            log.error("An error occurred while retrieving the list of users", e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-//                    HttpResponse.builder()
-//                            .timeStamp(now().toString())
-//                            .message(e.getMessage())
-//                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-//                            .build());
-//        }
-//    }
+    @PatchMapping("/update/role/{userId}/{roleName}")
+    public ResponseEntity<HttpResponse> updateUserRole(@PathVariable("userId") Long userId, @PathVariable("roleName") String roleName) {
+        userService.updateUserRole(userId, roleName);
+        UserDTO userDTO = userService.getUserById(userId);
+        publisher.publishEvent(new NewUserEvent(userDTO.getEmail(), ROLE_UPDATE));
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(userDTO.getId()), "events", eventService.getEventsByUserId(userDTO.getId()), "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Role updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @PatchMapping("/update/{userId}/settings")
+    public ResponseEntity<HttpResponse> updateAccountSettings(@PathVariable("userId") Long userId, @RequestBody @Valid SettingsForm form) {
+        UserDTO userDTO = userService.getUserById(userId);
+        userService.updateAccountSettings(userDTO.getId(), form.getEnabled(), form.getNotLocked());
+        publisher.publishEvent(new NewUserEvent(userDTO.getEmail(), ACCOUNT_SETTING_UPDATE));
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("user", userService.getUserById(userDTO.getId()), "events", eventService.getEventsByUserId(userDTO.getId()), "roles", roleService.getRoles()))
+                        .timeStamp(now().toString())
+                        .message("Account settings updated successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
 
 }

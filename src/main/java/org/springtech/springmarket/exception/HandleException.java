@@ -160,7 +160,7 @@ public class HandleException extends ResponseEntityExceptionHandler implements E
                         .timeStamp(now().toString())
                         .developerMessage(exception.getMessage())
                         //.reason(exception.getMessage() + ", too many failed attempts.")
-                        .reason("User account is currently locked")
+                        .reason("User account is currently locked, please contact your administrator")
                         .status(BAD_REQUEST)
                         .statusCode(BAD_REQUEST.value()).build()
                 , BAD_REQUEST);

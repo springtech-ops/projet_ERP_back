@@ -26,7 +26,8 @@ public class UserQuery {
     public static final String UPDATE_USER_IMAGE_QUERY = "UPDATE Users SET image_url = :imageUrl WHERE id = :id";
     public static final String UPDATE_USER_PASSWORD_BY_USER_ID_QUERY = "UPDATE Users SET password = :password WHERE id = :id";
 
-    public static final String SELECT_ALL_USERS = "SELECT id, first_name, password, title, enabled, non_locked, address, last_name, created_at, image_url, bio, email, non_locked, using_mfa, phone, agency_code FROM Users";
+    public static final String SELECT_ALL_USERS = "SELECT id, first_name, title, enabled, non_locked, address, last_name, created_at, image_url, bio, email, non_locked, using_mfa, phone, agency_code FROM Users";
 
+    public static final String SELECT_USERS_BY_FIRST_NAME = "SELECT id, first_name, title, enabled, non_locked, address, last_name, created_at, image_url, bio, email, non_locked, using_mfa, phone, agency_code FROM Users WHERE first_name LIKE :firstName";
     public static final String UPDATE_USER_BY_ADMIN = "UPDATE Users SET non_locked = :non_locked, email = :email, Agency_code = :Agency_code, phone = :phone, title= :title WHERE id = :id";
 }

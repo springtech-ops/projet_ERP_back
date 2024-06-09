@@ -2,7 +2,10 @@ package org.springtech.springmarket.repository.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -21,6 +24,7 @@ import org.springtech.springmarket.dto.UserDTO;
 import org.springtech.springmarket.enumeration.VerificationType;
 import org.springtech.springmarket.exception.ApiException;
 import org.springtech.springmarket.form.UpdateForm;
+import org.springtech.springmarket.query.UserQuery;
 import org.springtech.springmarket.repository.RoleRepository;
 import org.springtech.springmarket.repository.UserRepository;
 import org.springtech.springmarket.rowMapper.UserRowMapper;
@@ -30,8 +34,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -58,6 +65,12 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     private final BCryptPasswordEncoder encoder;
     private final EmailService emailService;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
     @Override
     public User create(User user) {
         if(getEmailCount(user.getEmail().trim().toLowerCase()) > 0) throw new ApiException("Email already in use. Please use a different email and try again.");
@@ -81,14 +94,24 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     @Override
-    public Collection<User> list() {
+    public List<User> getUsers() {
         try {
-            SqlParameterSource parameters = new MapSqlParameterSource();
-            return jdbc.query(SELECT_ALL_USERS, parameters, new UserRowMapper());
+            return jdbcTemplate.query(SELECT_ALL_USERS, allUsersRowMapper);
         } catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("An error occurred while fetching user list. Please try again.");
         }
+    }
+
+    @Override
+    public List<User> findByFirstName(String firstName) {
+        if (firstName == null || firstName.isEmpty()) {
+            return getUsers();
+        }
+        String searchQuery = "%" + firstName + "%";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("firstName", searchQuery);
+        return namedParameterJdbcTemplate.query(UserQuery.SELECT_USERS_BY_FIRST_NAME, parameters, allUsersRowMapper);
     }
 
     @Override
@@ -373,4 +396,26 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     private String getVerificationUrl(String key, String type) {
         return fromCurrentContextPath().path("/user/verify/" + type + "/" + key).toUriString();
     }
+
+    private RowMapper<User> allUsersRowMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+            user.setId(rs.getLong("id"));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            user.setEmail(rs.getString("email"));
+            user.setAddress(rs.getString("address"));
+            user.setPhone(rs.getString("phone"));
+            user.setTitle(rs.getString("title"));
+            user.setBio(rs.getString("bio"));
+            user.setImageUrl(rs.getString("image_url"));
+            user.setEnabled(rs.getBoolean("enabled"));
+            user.setNotLocked(rs.getBoolean("non_locked"));
+            user.setUsingMfa(rs.getBoolean("using_mfa"));
+            user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            user.setAgencyCode(rs.getString("agency_code"));
+            return user;
+        }
+    };
 }

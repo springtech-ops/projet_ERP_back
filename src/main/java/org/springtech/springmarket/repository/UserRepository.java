@@ -6,14 +6,14 @@ import org.springtech.springmarket.dto.UserDTO;
 import org.springtech.springmarket.form.UpdateForm;
 
 import java.util.Collection;
+import java.util.List;
 
-public interface UserRepository<T extends User> {
+public interface UserRepository <T extends User> {
     /*Basic CRUD Operation */
-    /* Basic CRUD Operations */
     T create(T data);
-    Collection<T> list();
+    List<T> getUsers();
+    List<T> findByFirstName(String firstName);
     T get(Long id);
-//    T update(T data);
     Boolean delete(Long id);
 
     /* More Complex Operations */

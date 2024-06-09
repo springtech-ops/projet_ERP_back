@@ -1,6 +1,7 @@
 package org.springtech.springmarket.service.implementation;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springtech.springmarket.domain.Role;
@@ -13,6 +14,7 @@ import org.springtech.springmarket.repository.UserRepository;
 import org.springtech.springmarket.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
 import static org.springtech.springmarket.dtomapper.UserDTOMapper.fromUser;
 
@@ -101,12 +103,11 @@ public class UserServiceImpl implements UserService {
         return fromUser(user, roleRoleRepository.getRoleByUserId(user.getId()));
     }
 
-    @Override
-    public Collection<User> getUsers(int page, int size) {
-        try {
-            return userRepository.list();
-        } catch (Exception exception) {
-            throw new ApiException("Une erreur s'est produite lors de la récupération de la liste des utilisateurs. Veuillez réessayer.");
-        }
+    public List<User> getAllUsers(int page, int size) {
+            return userRepository.getUsers();
+    }
+
+    public List<User> getUsersByFirstName(String firstName, int page, int size) {
+            return userRepository.findByFirstName(firstName);
     }
 }

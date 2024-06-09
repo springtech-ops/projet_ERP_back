@@ -8,7 +8,7 @@ public enum EventType {
     PROFILE_UPDATE_BY_ADMIN("As ADMIN You updated One User profile information"),
     PROFILE_PICTURE_UPDATE("You updated your profile picture"),
     ROLE_UPDATE("You updated your role and permissions"),
-    ACCOUNT_SETTINGS_UPDATE("You updated your account settings"),
+    ACCOUNT_SETTING_UPDATE("You updated your account settings"),
     MFA_UPDATE("You updated your MFA settings"),
     PASSWORD_UPDATE("You updated your password");
 
