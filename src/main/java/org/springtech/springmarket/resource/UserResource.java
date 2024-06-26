@@ -29,6 +29,7 @@ import org.springframework.security.core.Authentication;
 
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
@@ -246,7 +247,9 @@ public class UserResource {
         publisher.publishEvent(new NewUserEvent(user.getEmail(), PROFILE_PICTURE_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
-                        .data(of("user", userService.getUserById(user.getId()), "events", eventService.getEventsByUserId(user.getId()), "roles", roleService.getRoles()))
+                        .data(of("user", userService.getUserById(user.getId()),
+                                "events", eventService.getEventsByUserId(user.getId()),
+                                "roles", roleService.getRoles()))
                         .timeStamp(now().toString())
                         .message("Profile image updated")
                         .status(OK)
@@ -397,7 +400,7 @@ public class UserResource {
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
                                 "userById", userService.getUserById(id),
-                                "events", eventService.getEventsByUserId(user.getId()),
+                                "events", eventService.getEventsByUserId(id),
                                 "roles", roleService.getRoles(),
                                 "agencies", agencyService.getAgencies()))
                         .message("User By Specified ID retrieved")

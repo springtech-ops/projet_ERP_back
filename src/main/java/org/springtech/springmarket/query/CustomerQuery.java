@@ -42,7 +42,6 @@ public class CustomerQuery {
             "(SELECT SUM(total) FROM invoice WHERE status = 'unpaid' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)) AS total_unpaid_amount_last_days;";
 
 
-
 //    public static final String STATS_QUERY = "SELECT (SELECT COUNT(*) FROM customer) AS total_customers, (SELECT COUNT(*) FROM invoice) AS total_invoices, (SELECT SUM(total) FROM invoice) AS total_billed, (SELECT SUM(prix_vente_total - prix_achat_total) FROM ligne_commande) AS total_benefit, (SELECT COUNT(*) FROM invoice WHERE status = 'unpaid') AS total_unpaid, (SELECT SUM(total) FROM invoice WHERE status = 'unpaid') AS total_unpaid_amount;";
 
 //    public static final String STATS_QUERY = "SELECT " +

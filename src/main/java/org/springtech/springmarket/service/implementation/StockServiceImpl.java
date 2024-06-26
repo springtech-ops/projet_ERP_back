@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springtech.springmarket.domain.Agency;
 import org.springtech.springmarket.domain.Fournisseur;
 import org.springtech.springmarket.domain.Product;
 import org.springtech.springmarket.domain.Stock;
@@ -45,6 +46,11 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
+    public Page<Stock> searchStocks(String stockNumber, int page, int size) {
+        return stockRepository.findByStockNumberContaining(stockNumber, of(page, size));
+    }
+
+    @Override
     public void addStockToProduct(Long id, Stock stock) {
         setStockDetails(stock);
         Product product = productRepository.findById(id).get(); //.orElseThrow(() -> new EntityNotFoundException("Agency not found with id: " + id));
@@ -56,10 +62,12 @@ public class StockServiceImpl implements StockService {
         } else if (stock.getAction() == StockType.STOCK_OUT) {
             if (product.getQuantity() >= stock.getQuantityOut()) {
                 product.setQuantity(product.getQuantity() - stock.getQuantityOut());
+                stock.setPrixAchat(product.getPrixAchat());
+                stock.setPrixVente(product.getPrixVente());
                 stock.setQuantityOut(stock.getQuantityOut());
                 product.setUpdateAt(new Date());
             } else {
-                throw new IllegalArgumentException("La quantité de produit existante est insuffisante.");
+                throw new IllegalArgumentException("The quantity of product present is insufficient.");
             }
         }
 
@@ -79,23 +87,6 @@ public class StockServiceImpl implements StockService {
         stock.setProduct(product);
         stockRepository.save(stock);
     }
-
-//    @Override
-//    public void addStockToAgency(Long id, Stock stock) {
-//        setStockDetails(stock);
-////        Agency agency = agencyRepository.findById(id).get();
-//        Agency agency = agencyRepository.findById(id).get(); //.orElseThrow(() -> new EntityNotFoundException("Agency not found with id: " + id));
-//        stock.setAgency(agency);
-//        stockRepository.save(stock);
-//    }
-
-//    @Override
-//    public void addStockToFournisseur(Long id, Stock stock) {
-//        setStockDetails(stock);
-//        Fournisseur fournisseur = fournisseurRepository.findById(id).get();
-//        stock.setFournisseur(fournisseur);
-//        stockRepository.save(stock);
-//    }
 
     @Override
     public Stock getStock(Long id) {

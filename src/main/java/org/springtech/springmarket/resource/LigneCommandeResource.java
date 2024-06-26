@@ -1,5 +1,6 @@
 package org.springtech.springmarket.resource;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springtech.springmarket.domain.HttpResponse;
 import org.springtech.springmarket.domain.LigneCommande;
+import org.springtech.springmarket.domain.Product;
 import org.springtech.springmarket.dto.UserDTO;
 import org.springtech.springmarket.service.*;
 
@@ -39,16 +41,19 @@ public class LigneCommandeResource {
     @PostMapping("/create")
     public ResponseEntity<HttpResponse> createLigneCommande(@AuthenticationPrincipal UserDTO user, @RequestBody LigneCommande ligneCommande) {
         UserDTO currentUser = userService.getUserByEmail(user.getEmail());
-        String agencyCode = currentUser.getAgencyCode();
-        ligneCommande.setAgencyCodeLC(agencyCode);
+//        String agencyCode = currentUser.getAgencyCode();
+        ligneCommande.setAgencyCodeLC(user.getAgencyCode());
         LigneCommande createdLigneCommande = ligneCommandeService.createLigneCommande(ligneCommande);
         return ResponseEntity.created(URI.create(""))
                 .body(
                         HttpResponse.builder()
                                 .timeStamp(now().toString())
                                 .data(of("user", currentUser,
-                                        "LigneCommande", createdLigneCommande))
-                                .message("Ligne de commande créée")
+                                        "ligneCommande", createdLigneCommande,
+                                        "invoice", createdLigneCommande.getInvoice(),
+                                        "products", productService.getProductsCodeAndStatus(user.getAgencyCode()),
+                                        "selectedCustomer", createdLigneCommande.getInvoice().getCustomer()))
+                                .message(String.format("New Order Added with ID: %s", createdLigneCommande.getId()))
                                 .status(CREATED)
                                 .statusCode(CREATED.value())
                                 .build());
@@ -120,32 +125,66 @@ public class LigneCommandeResource {
                         .build());
     }
 
-    @PostMapping("/addtoproduct/{id}")
-    public ResponseEntity<HttpResponse> addLigneCommandeToProduct(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody LigneCommande ligneCommande) {
-        ligneCommandeService.addLigneCommandeToProduct(id, ligneCommande);
+    @PostMapping("/addto/{invoiceId}/{productId}")
+    public ResponseEntity<HttpResponse> assignProductToEntities(
+            @AuthenticationPrincipal UserDTO user,
+            @PathVariable("invoiceId") Long invoiceId,
+            @PathVariable("productId") Long productId,
+            @RequestBody LigneCommande ligneCommande)
+    {
+        LigneCommande createdLigneCommande = ligneCommandeService.addLigneCommandeToEntities(invoiceId, productId, ligneCommande);
+
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "products", productService.getProducts()))
-                        .message(String.format("Command Line added to Product with ID: %s", id))
+                                "ligneCommande", createdLigneCommande,
+                                "invoice", invoiceService.getInvoice(invoiceId),
+                                "products", productService.getProductsCodeAndStatus(user.getAgencyCode()),
+                                "selectedCustomer", createdLigneCommande.getInvoice().getCustomer()))
+                        .message(String.format("%s was added", createdLigneCommande.getName()))
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
 
-    @PostMapping("/addtoinvoice/{id}")
-    public ResponseEntity<HttpResponse> addLigneCommandeToInvoice(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody LigneCommande ligneCommande) {
-        ligneCommandeService.addLigneCommandeToInvoice(id, ligneCommande);
-        return ResponseEntity.ok(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "invoices", invoiceService.getInvoices()))
-                        .message(String.format("Command Line added to Invoice with ID: %s", id))
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build());
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<HttpResponse> deleteCategory(@PathVariable Long id) {
+        try {
+            LigneCommande ligneCommande = ligneCommandeService.getLigneCommande(id);
+            ligneCommandeService.deleteLigneCommande(id);
+            return ResponseEntity.ok(
+                    HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .message(String.format("%s was deleted", ligneCommande.getName()))
+                            .status(OK)
+                            .statusCode(OK.value())
+                            .build());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .message("Command line not found with id: " + id)
+                            .status(NOT_FOUND)
+                            .statusCode(NOT_FOUND.value())
+                            .build());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .message("Cannot delete Command line with associated products")
+                            .status(BAD_REQUEST)
+                            .statusCode(BAD_REQUEST.value())
+                            .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .message("An error occurred while deleting category.")
+                            .status(INTERNAL_SERVER_ERROR)
+                            .statusCode(INTERNAL_SERVER_ERROR.value())
+                            .build());
+        }
     }
 
 

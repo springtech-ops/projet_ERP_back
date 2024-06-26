@@ -3,6 +3,7 @@ package org.springtech.springmarket.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -29,4 +30,15 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, L
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.agency.id = :id")
     long countByAgencyId(@Param("id") Long id);
+
+    @Modifying
+    @Query("DELETE FROM Product p WHERE p.id = :id")
+    void deleteById(@Param("id") Long id);
+
+//    @Query("SELECT p FROM Product p WHERE p.agency.agencyCode = :agencyCode AND p.isActive = true")
+//    List<Product> findActiveProductsByAgencyCode(@Param("agencyCode") String agencyCode);
+
+    List<Product> findByAgency_CodeAndIsActiveTrue(String code);
+    List<Product> findByIsActiveTrue();
+
 }

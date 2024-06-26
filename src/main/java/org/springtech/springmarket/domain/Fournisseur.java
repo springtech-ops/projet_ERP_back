@@ -34,6 +34,8 @@ public class Fournisseur {
     private String name;
     private String address;
     private String city;
+    private String email;
+    private String phone;
 
     @OneToMany(mappedBy = "fournisseur", fetch = EAGER, cascade = ALL)
     private Collection<Product> products;

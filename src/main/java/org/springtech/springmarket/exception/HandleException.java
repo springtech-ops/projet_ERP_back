@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springtech.springmarket.domain.HttpResponse;
+import org.springtech.springmarket.handler.InsufficientQuantityException;
+import org.springtech.springmarket.handler.ResourceNotFoundException;
 
 
 import java.nio.file.AccessDeniedException;
@@ -165,4 +168,31 @@ public class HandleException extends ResponseEntityExceptionHandler implements E
                         .statusCode(BAD_REQUEST.value()).build()
                 , BAD_REQUEST);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<HttpResponse> resourceNotFoundException(ResourceNotFoundException exception) {
+        log.error(exception.getMessage());
+        return new ResponseEntity<>(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .reason("Resource not found: " + exception.getMessage())
+                        .developerMessage(exception.getMessage())
+                        .status(NOT_FOUND)
+                        .statusCode(NOT_FOUND.value())
+                        .build(), NOT_FOUND);
+    }
+
+    @ExceptionHandler(InsufficientQuantityException.class)
+    public ResponseEntity<HttpResponse> handleInsufficientQuantityException(InsufficientQuantityException ex, WebRequest request) {
+        HttpResponse response = HttpResponse.builder()
+                .timeStamp(now().toString())
+                .reason(ex.getMessage())
+                .status(HttpStatus.BAD_REQUEST)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+
 }

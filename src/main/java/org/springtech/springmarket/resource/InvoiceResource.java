@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springtech.springmarket.domain.HttpResponse;
 import org.springtech.springmarket.domain.Invoice;
 import org.springtech.springmarket.dto.UserDTO;
-import org.springtech.springmarket.service.CustomerService;
-import org.springtech.springmarket.service.InvoiceService;
-import org.springtech.springmarket.service.UserService;
+import org.springtech.springmarket.service.*;
 
 import java.net.URI;
 import java.util.Optional;
@@ -25,13 +23,16 @@ import static org.springframework.http.HttpStatus.OK;
 public class InvoiceResource {
     private final InvoiceService invoiceService;
     private final CustomerService customerService;
+    private final ProductService productService;
+    private final AgencyService agencyService;
     private final UserService userService;
 
     @PostMapping("/create")
     public ResponseEntity<HttpResponse> createInvoice(@AuthenticationPrincipal UserDTO user, @RequestBody Invoice invoice) {
         UserDTO currentUser = userService.getUserByEmail(user.getEmail());
-        String agencyCode = currentUser.getAgencyCode();
-        invoice.setAgencyCodeIv(agencyCode);
+//        String agency = agencyService.findAgencyNameByCode(user.getAgencyCode());
+//        invoice.setAgencyFact(agency);
+//        invoice.setUserFac(user.getFirstName());
         Invoice createdInvoice = invoiceService.createInvoice(invoice);
         return ResponseEntity.created(URI.create(""))
                 .body(
@@ -48,6 +49,7 @@ public class InvoiceResource {
 
     @GetMapping("/new")
     public ResponseEntity<HttpResponse> newInvoice(@AuthenticationPrincipal UserDTO user) {
+        String code = user.getAgencyCode();
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
@@ -79,7 +81,8 @@ public class InvoiceResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "invoice", invoice, "customer", invoiceService.getInvoice(id).getCustomer()))
+                                "invoice", invoice, "customer",
+                                invoiceService.getInvoice(id).getCustomer()))
                         .message("Invoice retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -88,13 +91,17 @@ public class InvoiceResource {
 
     @PostMapping("/addtocustomer/{id}")
     public ResponseEntity<HttpResponse> addInvoiceToCustomer(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody Invoice invoice) {
-        invoiceService.addInvoiceToCustomer(id, invoice);
+        invoice.setAgencyFact(agencyService.findAgencyNameByCode(user.getAgencyCode()));
+        invoice.setUserFac(user.getFirstName() + " " + user.getLastName());
+        Invoice addedInvoice = invoiceService.addInvoiceToCustomer(id, invoice);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "customers", customerService.getCustomers()))
-                        .message(String.format("Invoice added to customer with ID: %s", id))
+                                "invoice", addedInvoice,
+                                "selectedCustomer", addedInvoice.getCustomer(),
+                                "products", productService.getProductsCodeAndStatus(user.getAgencyCode())))
+                        .message(String.format("Invoice added to customer %s", customerService.getCustomer(id).getName()))
                         .status(OK)
                         .statusCode(OK.value())
                         .build());

@@ -6,7 +6,8 @@ server:
     path: /user/error
     whitelabel:
       enabled: false
-  address: 192.168.15.77
+  address: 192.168.56.1
+  # address: 192.168.202.77
 
 spring:
   #  autoconfigure:

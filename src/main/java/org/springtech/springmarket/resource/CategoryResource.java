@@ -66,7 +66,7 @@ public class CategoryResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "Category", categoryService.getCategory(id)))
+                                "category", categoryService.getCategory(id)))
                         .message("Category retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -86,7 +86,7 @@ public class CategoryResource {
                         .build());
     }
 
-    @PatchMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<HttpResponse> updateCategory(@AuthenticationPrincipal UserDTO user, @RequestBody Category category) {
         return ResponseEntity.ok(
                 HttpResponse.builder()

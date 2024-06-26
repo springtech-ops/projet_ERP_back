@@ -65,7 +65,7 @@ public class FournisseurResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "Fournisseur", fournisseurService.getFournisseur(id)))
+                                "fournisseur", fournisseurService.getFournisseur(id)))
                         .message("Fournisseur retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -85,7 +85,7 @@ public class FournisseurResource {
                         .build());
     }
 
-    @PatchMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<HttpResponse> updateFournisseur(@AuthenticationPrincipal UserDTO user, @RequestBody Fournisseur fournisseur) {
         return ResponseEntity.ok(
                 HttpResponse.builder()

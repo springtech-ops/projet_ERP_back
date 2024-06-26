@@ -43,7 +43,7 @@ public class Product {
     @JsonIgnore
     private Agency agency;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fournisseur_id", nullable = false)
     @JsonIgnore
     private Fournisseur fournisseur;

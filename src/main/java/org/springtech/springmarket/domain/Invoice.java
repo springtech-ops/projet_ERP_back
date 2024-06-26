@@ -34,7 +34,8 @@ public class Invoice {
     private LocalDateTime createdAt;
     private String status;
     private double total;
-    private String agencyCodeIv;
+    private String agencyFact;
+    private String userFac;
 
     @OneToMany(mappedBy = "invoice", fetch = EAGER, cascade = ALL)
     private Collection<LigneCommande> ligneCommandes;

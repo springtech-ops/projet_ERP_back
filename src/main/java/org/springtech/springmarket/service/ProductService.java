@@ -19,7 +19,8 @@ public interface ProductService {
 
     List<Product> getProducts(String agencyCode);
 
-    void addProductToCategory(Long id, Product product);
-    void addProductToFournisseur(Long id, Product product);
-    void addProductToAgency(Long id, Product product);
+    List<Product> getProductsCodeAndStatus(String code);
+
+    void addProductToEntities(Long agencyId, Long fournisseurId, Long categoryId, Product product);
+
 }

@@ -3,6 +3,7 @@ package org.springtech.springmarket.resource;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,8 +14,11 @@ import org.springtech.springmarket.dto.UserDTO;
 import org.springtech.springmarket.service.*;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.time.LocalTime.now;
 import static java.util.Map.of;
@@ -59,12 +63,12 @@ public class StockResource {
             if (agencyCode == null || agencyCode.isEmpty()) {
                 responseData = Map.of(
                         "user", userService.getUserByEmail(user.getEmail()),
-                        "Products", productService.getProducts()
+                        "products", productService.getProducts()
                 );
             } else {
                 responseData = Map.of(
                         "user", userService.getUserByEmail(user.getEmail()),
-                        "Products", productService.getProducts(agencyCode)
+                        "products", productService.getProducts(agencyCode)
                 );
             }
 
@@ -101,6 +105,19 @@ public class StockResource {
                         .build());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<HttpResponse> searchStock(@AuthenticationPrincipal UserDTO user, Optional<String> stockNumber, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
+        return ResponseEntity.ok(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("user", userService.getUserByEmail(user.getEmail()),
+                                "page", stockService.searchStocks(stockNumber.orElse(""), page.orElse(0), size.orElse(10))))
+                        .message("Stocks retrieved")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
     @GetMapping("/get/{id}")
     public ResponseEntity<HttpResponse> getStock(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id) {
         Stock stock = stockService.getStock(id);
@@ -108,7 +125,9 @@ public class StockResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "stock", stock, "product", stockService.getStock(id).getProduct()))
+                                "stock", stock,
+                                "product", stock.getProduct(),
+                                "agency", stock.getProduct().getAgency()))
                         .message("Stock retrieved")
                         .status(OK)
                         .statusCode(OK.value())

@@ -50,7 +50,7 @@ public class ProductResource {
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
                                 "page", productService.getProducts(page.orElse(0), size.orElse(10), agencyCode)))
-                        .message("Users retrieved")
+                        .message("Products retrieved")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
@@ -72,101 +72,40 @@ public class ProductResource {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<HttpResponse> getProduct(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id) {
+        Product product = productService.getProduct(id);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "product", productService.getProduct(id)))
+                                "product", product,
+                                "fournisseur", product.getFournisseur(),
+                                "agency", product.getAgency(),
+                                "category", product.getCategory()))
                         .message("Product retrieved")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<HttpResponse> searchProduct(@AuthenticationPrincipal UserDTO user, Optional<String> name, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
-//        return ResponseEntity.ok(
-//                HttpResponse.builder()
-//                        .timeStamp(now().toString())
-//                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-//                                "page", productService.searchProducts(name.orElse(""), page.orElse(0), size.orElse(10))))
-//                        .message("Products retrieved")
-//                        .status(OK)
-//                        .statusCode(OK.value())
-//                        .build());
-//    }
+    @PostMapping("/addto/{agencyId}/{fournisseurId}/{categoryId}")
+    public ResponseEntity<HttpResponse> assignProductToEntities(
+            @AuthenticationPrincipal UserDTO user,
+            @PathVariable("agencyId") Long agencyId,
+            @PathVariable("fournisseurId") Long fournisseurId,
+            @PathVariable("categoryId") Long categoryId,
+            @RequestBody Product product
+    ) {
+        productService.addProductToEntities(agencyId, fournisseurId, categoryId, product);
 
-
-//    @PostMapping("/addagencytoproduct/{id}/")
-//    public ResponseEntity<HttpResponse> addAgencyToProduct(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody Product product) {
-//        agencyService.addAgencyToProduct(id, product);
-//        return ResponseEntity.ok(
-//                HttpResponse.builder()
-//                        .timeStamp(now().toString())
-//                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-//                                "agencies", agencyService.getAgencies()))
-//                        .message(String.format("Agency Added to Product with ID: %s", id))
-//                        .status(OK)
-//                        .statusCode(OK.value())
-//                        .build());
-//    }
-
-    @PostMapping("/addtocategory/{id}")
-    public ResponseEntity<HttpResponse> addInvoiceToCustomer(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody Product product) {
-        productService.addProductToCategory(id, product);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "categories", categoryService.getCategories()))
-                        .message(String.format("Product added to category with ID: %s", id))
+                        .data(of("user", userService.getUserByEmail(user.getEmail())))
+                        .message("Product assigned to agency, fournisseur, and category successfully")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
-
-    @PostMapping("/addtofournisseur/{id}")
-    public ResponseEntity<HttpResponse> addProductToFournisseur(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody Product product) {
-        productService.addProductToFournisseur(id, product);
-        return ResponseEntity.ok(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "fournisseurs", fournisseurService.getFournisseurs()))
-                        .message(String.format("Product added to fournisseur with ID: %s", id))
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build());
-    }
-
-    @PostMapping("/addtoagency/{id}")
-    public ResponseEntity<HttpResponse> addProductToAgency(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody Product product) {
-        productService.addProductToAgency(id, product);
-        return ResponseEntity.ok(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "Agencies", agencyService.getAgencies()))
-                        .message(String.format("Product added to Agency with ID: %s", id))
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build());
-    }
-
-//    @PostMapping("/addcategorytoproduct/{id}")   /// A implementer
-//    public ResponseEntity<HttpResponse> addCategoryToProduct(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id, @RequestBody Product product) {
-//        categoryService.addCategoryToProduct(id, product);
-//        return ResponseEntity.ok(
-//                HttpResponse.builder()
-//                        .timeStamp(now().toString())
-//                        .data(of("user", userService.getUserByEmail(user.getEmail()),
-//                                "categories", agencyService.getAgencies()))
-//                        .message(String.format("Category Added to Product with ID: %s", id))
-//                        .status(OK)
-//                        .statusCode(OK.value())
-//                        .build());
-//    }
-
 
     @GetMapping("/search")
     public ResponseEntity<HttpResponse> searchProduct(@AuthenticationPrincipal UserDTO user,
@@ -185,36 +124,40 @@ public class ProductResource {
                         .build());
     }
 
-
-
     @PatchMapping("/update")
-    public ResponseEntity<HttpResponse> updateProduct(@AuthenticationPrincipal UserDTO user, @RequestBody Product product) {
+    public ResponseEntity<HttpResponse> updateProduct(@AuthenticationPrincipal UserDTO user,
+                                                      @RequestBody Product updateRequest) {
+        Product product = productService.updateProduct(updateRequest);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "product", productService.updateProduct(product)))
-                        .message("Product updated")
+                                "product", product,
+                                "fournisseur", product.getFournisseur(),
+                                "agency", product.getAgency(),
+                                "category", product.getCategory()))
+                        .message("Product partially updated")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
+
 
     @GetMapping("/new")
     public ResponseEntity<HttpResponse> newCategory(@AuthenticationPrincipal UserDTO user) {
         try {
             Map<String, Object> responseData = Map.of(
                     "user", userService.getUserByEmail(user.getEmail()),
-                    "Categories", categoryService.getCategories(),
-                    "Agencies", agencyService.getAgencies(),
-                    "Fournisseurs", fournisseurService.getFournisseurs()
+                    "categories", categoryService.getCategories(),
+                    "agencies", agencyService.getAgencies(),
+                    "fournisseurs", fournisseurService.getFournisseurs()
             );
 
             return ResponseEntity.ok(
                     HttpResponse.builder()
                             .timeStamp(now().toString())
                             .data(responseData)
-                            .message("Categories and Agencies retrieved")
+                            .message("Categories, Agencies and Suppliers retrieved")
                             .status(OK)
                             .statusCode(OK.value())
                             .build());
@@ -239,14 +182,6 @@ public class ProductResource {
                             .message("Product deleted successfully.")
                             .status(OK)
                             .statusCode(OK.value())
-                            .build());
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(HttpResponse.builder()
-                            .timeStamp(now().toString())
-                            .message("Product not found with id: " + id)
-                            .status(NOT_FOUND)
-                            .statusCode(NOT_FOUND.value())
                             .build());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

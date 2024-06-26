@@ -82,4 +82,8 @@ public class AgencyServiceImpl implements AgencyService {
         agencyRepository.deleteById(id);
     }
 
+    public String findAgencyNameByCode(String code) {
+        return agencyRepository.findNameByCode(code);
+    }
+
 }
