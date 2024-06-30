@@ -98,28 +98,34 @@ public class LigneCommandeResource {
         }
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<HttpResponse> getLigneCommandes(@AuthenticationPrincipal UserDTO user, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
+    @GetMapping("/search")
+    public ResponseEntity<HttpResponse> searchLigne(@AuthenticationPrincipal UserDTO user, Optional<String> name, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "page", ligneCommandeService.getLigneCommandes(page.orElse(0), size.orElse(10))))
-                        .message("Command Line retrieved")
+                                "page", ligneCommandeService.searchLigneCommandes(name.orElse(""), page.orElse(0), size.orElse(10))))
+                        .message("Orders retrieved")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<HttpResponse> getLigneCommande(@AuthenticationPrincipal UserDTO user, @PathVariable("id") Long id) {
+    public ResponseEntity<HttpResponse> getLigneCommande(
+            @AuthenticationPrincipal UserDTO user,
+            @PathVariable("id") Long id) {
         LigneCommande ligneCommande = ligneCommandeService.getLigneCommande(id);
         return ResponseEntity.ok(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "LigneCommande", ligneCommande, "product", ligneCommandeService.getLigneCommande(id).getProduct()))
-                        .message("Command Line retrieved")
+                                "ligneCommande", ligneCommande,
+                                "invoice", ligneCommande.getInvoice(),
+                                "customer", ligneCommande.getInvoice().getCustomer(),
+                                "product", ligneCommande.getProduct(),
+                                "agency", ligneCommande.getProduct().getAgency()))
+                        .message("Oder retrieved")
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
@@ -138,7 +144,6 @@ public class LigneCommandeResource {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(user.getEmail()),
-                                "ligneCommande", createdLigneCommande,
                                 "invoice", invoiceService.getInvoice(invoiceId),
                                 "products", productService.getProductsCodeAndStatus(user.getAgencyCode()),
                                 "selectedCustomer", createdLigneCommande.getInvoice().getCustomer()))
@@ -149,18 +154,22 @@ public class LigneCommandeResource {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<HttpResponse> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<HttpResponse> deleteLigneCommande(@AuthenticationPrincipal UserDTO user, @PathVariable Long id) {
         try {
             LigneCommande ligneCommande = ligneCommandeService.getLigneCommande(id);
             ligneCommandeService.deleteLigneCommande(id);
             return ResponseEntity.ok(
                     HttpResponse.builder()
-                            .timeStamp(now().toString())
-                            .message(String.format("%s was deleted", ligneCommande.getName()))
-                            .status(OK)
-                            .statusCode(OK.value())
-                            .build());
-        } catch (EntityNotFoundException e) {
+                .timeStamp(now().toString())
+                .data(of("user", userService.getUserByEmail(user.getEmail()),
+                        "invoice", ligneCommande.getInvoice(),
+                        "products", productService.getProductsCodeAndStatus(user.getAgencyCode()),
+                        "selectedCustomer", ligneCommande.getInvoice().getCustomer()))
+                .message(String.format("%s was deleted", ligneCommande.getName()))
+                .status(OK)
+                .statusCode(OK.value())
+                .build());
+    } catch (EntityNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(HttpResponse.builder()
                             .timeStamp(now().toString())
@@ -186,6 +195,23 @@ public class LigneCommandeResource {
                             .build());
         }
     }
+
+
+    @DeleteMapping("/deleteLcDetail/{id}")
+    public ResponseEntity<HttpResponse> deleteLigne(@AuthenticationPrincipal UserDTO user, @PathVariable Long id) {
+            LigneCommande ligneCommande = ligneCommandeService.getLigneCommande(id);
+            ligneCommandeService.deleteLigneCommande(id);
+            return ResponseEntity.ok(
+                    HttpResponse.builder()
+                            .timeStamp(now().toString())
+                            .data(of("user", userService.getUserByEmail(user.getEmail()),
+                                    "invoice", ligneCommande.getInvoice(),
+                                    "customer", ligneCommande.getInvoice().getCustomer()))
+                            .message(String.format("%s was deleted", ligneCommande.getName()))
+                            .status(OK)
+                            .statusCode(OK.value())
+                            .build());
+        }
 
 
 }

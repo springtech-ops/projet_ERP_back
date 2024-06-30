@@ -15,4 +15,7 @@ public interface AgencyRepository extends PagingAndSortingRepository<Agency, Lon
 
     @Query("SELECT a.name FROM Agency a WHERE a.code = :code")
     String findNameByCode(@Param("code") String code);
+
+    @Query("SELECT a.name FROM Agency a WHERE a.id = :id")
+    String findNameById(@Param("id") Long id);
 }

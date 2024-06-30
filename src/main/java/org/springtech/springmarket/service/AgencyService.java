@@ -19,6 +19,8 @@ public interface AgencyService {
     void deleteAgency(Long id);
 
     String findAgencyNameByCode(String code);
+
+    String findAgencyNameById(Long id);
 }
 
 

@@ -5,20 +5,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springtech.springmarket.domain.Agency;
-import org.springtech.springmarket.domain.Fournisseur;
 import org.springtech.springmarket.domain.Product;
 import org.springtech.springmarket.domain.Stock;
-import org.springtech.springmarket.repository.AgencyRepository;
-import org.springtech.springmarket.repository.FournisseurRepository;
+import org.springtech.springmarket.enumeration.ProductStatus;
+import org.springtech.springmarket.enumeration.StockType;
 import org.springtech.springmarket.repository.ProductRepository;
 import org.springtech.springmarket.repository.StockRepository;
 import org.springtech.springmarket.service.StockService;
-import org.springtech.springmarket.enumeration.StockType;
-import org.springtech.springmarket.enumeration.ProductStatus;
-
 
 import java.util.Date;
 
@@ -42,12 +38,14 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public Page<Stock> getStocks(int page, int size) {
-        return stockRepository.findAll(of(page, size));
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return stockRepository.findAll(of(page, size, sort));
     }
 
     @Override
     public Page<Stock> searchStocks(String stockNumber, int page, int size) {
-        return stockRepository.findByStockNumberContaining(stockNumber, of(page, size));
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return stockRepository.findByStockNumberContaining(stockNumber, of(page, size, sort));
     }
 
     @Override

@@ -95,6 +95,7 @@ public class ProductResource {
             @PathVariable("categoryId") Long categoryId,
             @RequestBody Product product
     ) {
+        product.setAgencyName(agencyService.findAgencyNameById(agencyId));
         productService.addProductToEntities(agencyId, fournisseurId, categoryId, product);
 
         return ResponseEntity.ok(

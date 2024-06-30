@@ -59,9 +59,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(existingProduct);
     }
 
-
-
-
     @Override
     public Page<Product> getProducts(int page, int size, String agencyCode) {
         if (agencyCode == null || agencyCode.isEmpty()) {

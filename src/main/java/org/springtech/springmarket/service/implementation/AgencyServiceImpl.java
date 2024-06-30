@@ -86,4 +86,8 @@ public class AgencyServiceImpl implements AgencyService {
         return agencyRepository.findNameByCode(code);
     }
 
+    public String findAgencyNameById(Long id) {
+        return agencyRepository.findNameById(id);
+    }
+
 }

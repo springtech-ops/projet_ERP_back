@@ -35,10 +35,8 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, L
     @Query("DELETE FROM Product p WHERE p.id = :id")
     void deleteById(@Param("id") Long id);
 
-//    @Query("SELECT p FROM Product p WHERE p.agency.agencyCode = :agencyCode AND p.isActive = true")
-//    List<Product> findActiveProductsByAgencyCode(@Param("agencyCode") String agencyCode);
-
     List<Product> findByAgency_CodeAndIsActiveTrue(String code);
     List<Product> findByIsActiveTrue();
+
 
 }

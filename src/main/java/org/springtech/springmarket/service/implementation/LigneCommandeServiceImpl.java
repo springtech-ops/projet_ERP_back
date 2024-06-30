@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springtech.springmarket.domain.*;
 import org.springtech.springmarket.enumeration.ProductStatus;
@@ -35,47 +36,9 @@ public class LigneCommandeServiceImpl implements LigneCommandeService {
         return ligneCommandeRepository.save(ligneCommande);
     }
 
-    @Override
-    public Page<LigneCommande> getLigneCommandes(int page, int size) {
-        return ligneCommandeRepository.findAll(of(page, size));
-    }
-
 //    @Override
-//    public LigneCommande addLigneCommandeToEntities(Long invoiceId, Long productId, LigneCommande ligneCommande) {
-//        Invoice invoice = invoiceRepository.findById(invoiceId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with id: " + invoiceId));
-//        ligneCommande.setInvoice(invoice);
-//
-//        Product product = productRepository.findById(productId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
-//        ligneCommande.setProduct(product);
-//
-//        int newQuantity = product.getQuantity() - ligneCommande.getQuantityLC();
-//        if (newQuantity < 0) {
-//            throw new IllegalArgumentException("Available Product Quantity is insufficient.");
-//        } else {
-//            product.setQuantity(newQuantity);
-//            ligneCommande.setName(product.getName());
-//            ligneCommande.setPrixAchat(product.getPrixAchat());
-//            ligneCommande.setPrixVente(product.getPrixVente());
-//
-//            ligneCommande.setPrixVenteTotal(ligneCommande.getPrixVente() * ligneCommande.getQuantityLC());
-//            ligneCommande.setPrixAchatTotal(ligneCommande.getPrixAchat() * ligneCommande.getQuantityLC());
-//
-//            ligneCommande.setBeneficeTotal(ligneCommande.getPrixVenteTotal() - ligneCommande.getPrixAchatTotal());
-//
-//            ligneCommande.setCreatedAt(new Date());
-//            if (newQuantity < 5) {
-//                product.setStatus(String.valueOf(ProductStatus.WARNING));
-//            }
-//            if (newQuantity == 0) {
-//                product.setStatus(String.valueOf(ProductStatus.EMPTY));
-//                product.setIsActive(false);
-//            }
-//            productRepository.save(product);
-//            ligneCommandeRepository.save(ligneCommande);
-//        }
-//        return ligneCommande;
+//    public Page<LigneCommande> getLigneCommandes(int page, int size) {
+//        return ligneCommandeRepository.findAll(of(page, size));
 //    }
 
     @Override
@@ -117,6 +80,7 @@ public class LigneCommandeServiceImpl implements LigneCommandeService {
             }
             productRepository.save(product);
             ligneCommandeRepository.save(ligneCommande);
+            invoiceRepository.save(invoice);
         }
         return ligneCommande;
     }
@@ -130,9 +94,39 @@ public class LigneCommandeServiceImpl implements LigneCommandeService {
 
     @Override
     public void deleteLigneCommande(Long id) {
-        if (!ligneCommandeRepository.existsById(id)) {
-            throw new EntityNotFoundException("Product not found with id: " + id);
+        LigneCommande ligneCommande = ligneCommandeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("LigneCommande not found with id: " + id));
+
+        Product product = ligneCommande.getProduct();
+        product.setQuantity(product.getQuantity() + ligneCommande.getQuantityLC());
+
+        // Mettre à jour le statut du produit en fonction de la nouvelle quantité
+        if (product.getQuantity() == 0) {
+            product.setStatus(String.valueOf(ProductStatus.EMPTY));
+            product.setIsActive(false);
+        } else if (product.getQuantity() > 0 && product.getQuantity() <= 5) {
+            product.setStatus(String.valueOf(ProductStatus.WARNING));
+            product.setIsActive(true);  // S'assurer que le produit est actif s'il est en alerte
+        } else {
+            product.setStatus(String.valueOf(ProductStatus.AVAILABLE));
+            product.setIsActive(true);  // S'assurer que le produit est actif s'il est disponible
         }
+
+        productRepository.save(product);
+
+        // Mettre à jour la facture
+        Invoice invoice = ligneCommande.getInvoice();
+        invoice.setTotal(invoice.getTotal() - ligneCommande.getPrixVenteTotal());
+        invoiceRepository.save(invoice);
+
         ligneCommandeRepository.deleteById(id);
     }
+
+    @Override
+    public Page<LigneCommande> searchLigneCommandes(String name, int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+            return ligneCommandeRepository.findByNameContaining(name, of(page, size, sort));
+
+    }
+
 }

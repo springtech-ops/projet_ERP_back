@@ -36,8 +36,9 @@ public class Invoice {
     private double total;
     private String agencyFact;
     private String userFac;
+    private String agencyCode;
 
-    @OneToMany(mappedBy = "invoice", fetch = EAGER, cascade = ALL)
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<LigneCommande> ligneCommandes;
 
     @ManyToOne
