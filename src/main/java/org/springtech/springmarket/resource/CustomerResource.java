@@ -28,12 +28,6 @@ public class CustomerResource {
     private final CustomerService customerService;
     private final UserService userService;
 
-//    @Autowired
-//    public CustomerResource(CustomerService customerService, UserService userService){
-//        this.customerService = customerService;
-//        this.userService = userService;
-//    }
-
     @GetMapping("/list")
     public ResponseEntity<HttpResponse> getCustomers(@AuthenticationPrincipal UserDTO user, @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size) {
         return ResponseEntity.ok(
