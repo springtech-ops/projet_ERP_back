@@ -7,19 +7,12 @@ server:
     whitelabel:
       enabled: false
     address: 192.168.40.108
-#  address: 192.168.56.1
-
 
 spring:
-  #  autoconfigure:
-  #    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
   datasource:
     url: jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?serverTimezone=UTC
     username: ${MYSQLUSER}
     password: ${MYSQLPASSWORD}
-#    url: jdbc:mysql://192.168.56.1:3308/springmarket?serverTimezone=UTC
-#    username: spring
-#    password: spring1234
   jpa:
     database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
     generate-ddl: true
@@ -50,5 +43,3 @@ spring:
           starttls:
             enable: true
             required: true
-
-
