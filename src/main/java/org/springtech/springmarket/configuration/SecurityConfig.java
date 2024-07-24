@@ -186,7 +186,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         var corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200", "http://192.168.56.1:4200", "https://projet-erp-frontend.vercel.app"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200", "http://192.168.56.1:4200", "https://projet-erp-frontend.vercel.app", "https://projet-erp-frontend.vercel.app/"));
         //corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
                 "Accept", "Jwt-Token", "Authorization", "Origin", "Accept", "X-Requested-With",
