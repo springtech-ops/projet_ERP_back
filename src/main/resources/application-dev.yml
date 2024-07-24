@@ -14,7 +14,7 @@ spring:
       max-lifetime: 600000  # 10 minutes
     url: jdbc:mysql://mysql.railway.internal:3306/railway?serverTimezone=UTC
     username: root
-    password: hJunBCPZzqsFxjomJGlBfInAZbnhVcAH
+    password: kJEUYslVOpEiZGtuMCkfkrpmuIETthVf
   jpa:
     database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
     generate-ddl: true
