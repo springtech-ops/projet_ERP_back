@@ -14,9 +14,9 @@ spring:
   #  autoconfigure:
   #    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
   datasource:
-    url: jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?serverTimezone=UTC
-    username: ${MYSQLUSER}
-    password: ${MYSQLPASSWORD}
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?serverTimezone=UTC
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
 #    url: jdbc:mysql://192.168.56.1:3308/springmarket?serverTimezone=UTC
 #    username: spring
 #    password: spring1234
@@ -36,10 +36,14 @@ spring:
       mode: never
       continue-on-error: false
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: temgouaromeo258@gmail.com
-    password: tjss ehul xmjt imxj
+    host: ${EMAIL_HOST}
+    port: ${EMAIL_PORT}
+    username: ${EMAIL_ID}
+    password: ${EMAIL_PASSWORD}
+#    host: smtp.gmail.com
+#    port: 587
+#    username: temgouaromeo258@gmail.com
+#    password: tjss ehul xmjt imxj
     properties:
       mail:
         smtp:
