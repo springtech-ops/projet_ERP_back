@@ -20,7 +20,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void addUserEvent(String email, EventType eventType, String device, String ipAddress) {
-        eventRepository.addUserEvent(email, eventType, device, ipAddress);
+        try {
+            eventRepository.addUserEvent(email, eventType, device, ipAddress);
+        } catch (Exception e) {
+            // Loggez l'erreur
+            System.err.println("Error adding user event: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
