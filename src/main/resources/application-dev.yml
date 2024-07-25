@@ -10,8 +10,6 @@ server:
 
 spring:
   datasource:
-    hikari:
-      max-lifetime: 600000  # 10 minutes
     url: jdbc:mysql://viaduct.proxy.rlwy.net:49958/railway?serverTimezone=UTC
     username: root
     password: kJEUYslVOpEiZGtuMCkfkrpmuIETthVf
@@ -33,8 +31,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: temgouaromeo258@gmail.com
-    password: tjss ehul xmjt imxj
+    username: springtech258@gmail.com
+    password: zwdl ncio vgjo smeh
     properties:
       mail:
         smtp:
@@ -45,3 +43,6 @@ spring:
           starttls:
             enable: true
             required: true
+
+app:
+  base-url: https://projet-erp-frontend.vercel.app

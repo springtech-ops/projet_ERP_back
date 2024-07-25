@@ -3,6 +3,7 @@ package org.springtech.springmarket.repository.implementation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -36,18 +37,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.Objects.requireNonNull;
 import static java.util.Map.of;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.time.DateFormatUtils.*;
+import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 import static org.springtech.springmarket.constant.Constants.DATE_FORMAT;
@@ -64,6 +64,9 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     private final RoleRepository<Role> roleRepository;
     private final BCryptPasswordEncoder encoder;
     private final EmailService emailService;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -394,7 +397,8 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     }
 
     private String getVerificationUrl(String key, String type) {
-        return fromCurrentContextPath().path("/user/verify/" + type + "/" + key).toUriString();
+//        return fromCurrentContextPath().path("/user/verify/" + type + "/" + key).toUriString();
+        return baseUrl + "/user/verify/" + type + "/" + key;
     }
 
     private RowMapper<User> allUsersRowMapper = new RowMapper<User>() {
