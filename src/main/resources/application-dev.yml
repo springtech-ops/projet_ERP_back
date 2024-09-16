@@ -10,9 +10,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://autorack.proxy.rlwy.net:41380/railway?serverTimezone=UTC
+    url: jdbc:mysql://junction.proxy.rlwy.net:46934/railway?serverTimezone=UTC
     username: root
-    password: xUYcVFTANFMuuZkRnEzqtNEDYmeNnykH
+    password: plNHzQceSItGYEJYyMAcRGZPShjfTaxs
   jpa:
     database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
     generate-ddl: true
